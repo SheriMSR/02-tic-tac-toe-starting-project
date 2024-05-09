@@ -6,6 +6,10 @@ import Log from "./Component/Log";
 import { WINNING_COMBINATIONS } from "./WINNING-COMBINATION";
 import GameOver from "./Component/GameOver";
 
+const PLAYER = {
+  X: "player 1",
+  O: "player 2",
+};
 const initialGameBoard = [
   [null, null, null],
   [null, null, null],
@@ -32,7 +36,8 @@ function deriveGameBoard(gameTurns) {
   }
   return gameBoard;
 }
-function deriveWinner(gameBoard) {
+
+function deriveWinner(gameBoard, player) {
   let winner;
   for (const combination of WINNING_COMBINATIONS) {
     const firstSquareSymbol =
@@ -47,7 +52,7 @@ function deriveWinner(gameBoard) {
       firstSquareSymbol === secondSquareSymbol &&
       firstSquareSymbol === thirdSquareSymbol
     ) {
-      winner = firstSquareSymbol;
+      winner = player[firstSquareSymbol];
     }
   }
   return winner;
@@ -55,10 +60,11 @@ function deriveWinner(gameBoard) {
 
 function App() {
   const [gameTurns, setGameTurn] = useState([]);
+  const [player, setPlayer] = useState(PLAYER);
 
   const activePlayer = deriveActivePlayer(gameTurns);
   const gameBoard = deriveGameBoard(gameTurns);
-  const winner = deriveWinner(gameBoard);
+  const winner = deriveWinner(gameBoard, player);
 
   const hasDraw = gameTurns.length === 9;
 
@@ -76,19 +82,27 @@ function App() {
   function handleRestart() {
     setGameTurn([]);
   }
+  function handleNameChange(symbol, newName) {
+    setPlayer((prevPlayers) => {
+      return { ...prevPlayers, [symbol]: newName };
+    });
+  }
+
   return (
     <main>
       <div id="game-container">
         <ol id="players" className="highlight-player">
           <Player
-            initialName="player 1"
+            initialName={PLAYER.X}
             symbol="X"
             isActive={activePlayer === "X"}
+            onChange={handleNameChange}
           />
           <Player
-            initialName="player 2"
+            initialName={PLAYER.O}
             symbol="O"
             isActive={activePlayer === "O"}
+            onChange={handleNameChange}
           />
         </ol>
         {(winner || hasDraw) && (
